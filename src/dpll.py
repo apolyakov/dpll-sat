@@ -25,7 +25,7 @@ def unit_propagate(s: Set[FrozenSet[int]], literal: int) -> Set[FrozenSet[int]]:
 
 def dpll(cnf: CNFFormula) -> Tuple[bool, Dict]:
 
-    def update_cnf(new_cnf: CNFFormula, literal: int) -> CNFFormula:
+    def extend_cnf(new_cnf: CNFFormula, literal: int) -> CNFFormula:
         new_cnf = deepcopy(new_cnf)
 
         new_cnf.clauses.add(frozenset({literal}))
@@ -66,9 +66,9 @@ def dpll(cnf: CNFFormula) -> Tuple[bool, Dict]:
 
     # Choose literal
     literal = random.sample(cnf.literals, 1)[0]
-    is_sat, model = dpll(update_cnf(cnf, literal))
+    is_sat, model = dpll(extend_cnf(cnf, literal))
 
     if is_sat:
         return True, model
     else:
-        return dpll(update_cnf(cnf, -literal))
+        return dpll(extend_cnf(cnf, -literal))
