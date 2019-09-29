@@ -5,7 +5,7 @@ from dpll import dpll
 from tseitin import tseitin
 
 
-def create_arg_parser() -> argparse.ArgumentParser:
+def _create_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Take a boolean expression "
                                                  "and determine whether it's "
                                                  "satisfiable or not.\n"
@@ -18,10 +18,8 @@ def create_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-if __name__ == '__main__':
-    args = create_arg_parser().parse_args()
-
-    clauses, original_literals = tseitin(args.expression)
+def solve(expr: str) -> None:
+    clauses, original_literals = tseitin(expr)
     cnf = CNFFormula(clauses)
     is_sat, model = dpll(cnf)
 
@@ -30,7 +28,11 @@ if __name__ == '__main__':
             map(lambda key: f'{key}: {model[key]}',
                 filter(lambda key: key in original_literals, model.keys()))
         ))
-        print(f'SAT: {args.expression}\n'
+        print(f'SAT: {expr}\n'
               f'Model: \n{model_str}')
     else:
         print('UNSAT')
+
+
+if __name__ == '__main__':
+    solve(_create_arg_parser().parse_args().expression)
