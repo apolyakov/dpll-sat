@@ -17,8 +17,10 @@ def _parse_boolean_expression(expr: str) -> Expression:
 
     def convert_to_bin_operands(expr: Expression) -> Expression:
         expr_type = type(expr)
-        if expr_type in (NOT, Symbol):
+        if expr_type is Symbol:
             return expr
+        elif expr_type is NOT:
+            return NOT(convert_to_bin_operands(expr.args[0]))
         elif len(expr.args) == 2:
             return expr_type(
                 convert_to_bin_operands(expr.args[0]),
