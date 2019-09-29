@@ -7,7 +7,7 @@ def get_unique_var_name() -> Symbol:
     if not hasattr(get_unique_var_name, 'counter'):
         get_unique_var_name.counter = 1
 
-    # Here we just hope that user doesn't use so obscure name.
+    # Here we just hope that user won't use so obscure name.
     s = Symbol(f'_system_{get_unique_var_name.counter}')
     get_unique_var_name.counter += 1
     return s
