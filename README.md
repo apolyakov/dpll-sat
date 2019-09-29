@@ -8,3 +8,6 @@ Your Python version should be at least 3.6 to use the solver. To address additio
 
 ## Usage
 Run `python src/sat_solver.py -h` for the detailed explanation.
+
+## Running samples
+Run 'python samples/example_sample.py -h' for the detailed explanation.
