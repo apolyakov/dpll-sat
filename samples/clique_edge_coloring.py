@@ -65,6 +65,8 @@ def generate_bool_expr(n: int, colors_num: int) -> str:
 if __name__ == '__main__':
     args = _create_arg_parser().parse_args()
 
+    sys.setrecursionlimit(10**6)  # a hack to solve bigger problems w/o SO
+
     if args.n is not None:
         sat_solver.solve(generate_bool_expr(args.n, args.k))
     else:
