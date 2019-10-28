@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.join(
     os.path.dirname(os.path.realpath(__file__)), '..', 'src'
 ))
-import sat_solver
+from z3 import *
 
 
 def _create_arg_parser() -> argparse.ArgumentParser:
@@ -23,7 +23,7 @@ def _create_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def generate_bool_expr(n: int, colors_num: int) -> str:
+def generate_bool_expr(n: int, colors_num: int) -> z3.z3.BoolRef:
     visited_triangles = set()
     visited_edges = set()
     triangles = []
@@ -44,9 +44,10 @@ def generate_bool_expr(n: int, colors_num: int) -> str:
                 triangle_expr = []
                 for color in range(colors_num):
                     # The triangle's edges don't have the same color.
-                    triangle_expr.append(f'~(_{color}_{a}_{b}_ & '
-                                         f'_{color}_{a}_{c}_ & _{color}_{b}_{c}_)')
-                triangles.append(' & '.join(triangle_expr))
+                    triangle_expr.append(Not(And(Bool(f'_{color}_{a}_{b}_'),
+                                             Bool(f'_{color}_{a}_{c}_'),
+                                             Bool(f'_{color}_{b}_{c}_'))))
+                triangles.append(And(triangle_expr))
 
                 for s, e in [(a, b), (a, c), (b, c)]:
                     if (s, e) in visited_edges:
@@ -55,11 +56,11 @@ def generate_bool_expr(n: int, colors_num: int) -> str:
                     edge_expr = []
                     # The edge is colored with just one color.
                     for color in range(colors_num):
-                        other_colors = ' & '.join([f'~_{c}_{s}_{e}_' for c in range(colors_num) if c != color])
-                        edge_expr.append(f'(_{color}_{s}_{e}_ & {other_colors})')
-                    edges.append('(' + ' | '.join(edge_expr) + ')')
+                        other_colors = And(list(map(lambda s: Not(Bool(s)), [f'_{c}_{s}_{e}_' for c in range(colors_num) if c != color])))
+                        edge_expr.append(And(Bool(f'_{color}_{s}_{e}_'), other_colors))
+                    edges.append(Or(edge_expr))
 
-    return ' & '.join(triangles) + ' & ' + ' & '.join(edges)
+    return And(And(triangles), And(edges))
 
 
 if __name__ == '__main__':
@@ -67,13 +68,15 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(10**6)  # a hack to solve bigger problems w/o SO
 
+    solver = z3.Solver()
+
     if args.n is not None:
-        sat_solver.solve(generate_bool_expr(args.n, args.k))
+        print(solver.check(generate_bool_expr(args.n, args.k)))
     else:
         n = 2
-        is_sat = True
-        while is_sat:
+        is_sat = sat
+        while is_sat == sat:
             n += 1
-            is_sat, _ = sat_solver.solve(generate_bool_expr(n, args.k), silent=True)
+            is_sat = solver.check(generate_bool_expr(n, args.k))
 
         print(f'Maximum size = {n - 1}')
