@@ -65,15 +65,9 @@ class CNFFormula:
                 res.append(next(iter(clause)))
         return res
 
-    @property
     def empty(self) -> bool:
         return not bool(self.clauses) or all(not clause for clause in self.clauses)
 
-    @property
     def contains_empty_clause(self) -> bool:
         units = self.units
-        for unit in units:
-            if -unit in units:
-                return True
-
-        return False
+        return any(-unit in units for unit in units)

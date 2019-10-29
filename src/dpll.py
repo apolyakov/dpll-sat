@@ -34,9 +34,9 @@ def dpll(cnf: CNFFormula) -> Tuple[bool, Dict]:
         return new_cnf
 
     def get_cnf_status(cnf: CNFFormula) -> Union[None, Tuple[bool, Dict]]:
-        if cnf.empty:
+        if cnf.empty():
             return True, cnf.model
-        if cnf.contains_empty_clause:
+        if cnf.contains_empty_clause():
             return False, cnf.model
         return None
 
